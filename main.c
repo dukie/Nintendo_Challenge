@@ -205,16 +205,16 @@ AlphaCentauriNumber AlphaCentauriNumber::operator+(AlphaCentauriNumber other) {
 }
 
 AlphaCentauriNumber AlphaCentauriNumber::operator*(AlphaCentauriNumber other) {
-	int tmsbFirst = tmsb;
+	//int tmsbFirst = tmsb;
 	int tmsbSecond = other.getTMSB();
 	
-	int newSize = tmsbFirst+tmsbSecond+2;
+	int newSize = tmsb+tmsbSecond+2;
 	bool* n = createBoolArray(newSize);
 	
 	bool* first = this->getDirect();
 	bool* second = other.getDirect();
 	
-	for (int i = 0; i <= tmsbFirst; i++) {
+	for (int i = 0; i <= tmsb; i++) {
 		for (int k = 0; k <= tmsbSecond; k++) {
 			n[i+k] ^= first[i] & second[k];
 		}
@@ -241,6 +241,7 @@ bool AlphaCentauriNumber::operator==(AlphaCentauriNumber other) {
 
 
 AlphaCentauriNumber AlphaCentauriNumber::operator/(AlphaCentauriNumber other) {
+	
 	AlphaCentauriNumber that = *this;
 	int firstTmsb = that.getTMSB();
 	int secondTmsb = other.getTMSB();
@@ -257,10 +258,12 @@ AlphaCentauriNumber AlphaCentauriNumber::operator/(AlphaCentauriNumber other) {
 }
 
 AlphaCentauriNumber AlphaCentauriNumber::operator%(AlphaCentauriNumber other) {
+	
 	bool* n = createBoolArray(tmsb+1);
 	for(int i = 0; i <= tmsb; i++) {
 		n[i] = num[i];
 	}
+		
 	int nTMSB = tmsb;
 	bool * otherDirect = other.getDirect();
 	int secondTMSB = other.getTMSB();
@@ -281,7 +284,7 @@ AlphaCentauriNumber AlphaCentauriNumber::operator%(AlphaCentauriNumber other) {
 			nTMSB--;
 		}
 	}
-	delete[] n;
+	//delete[] n;
 	return AlphaCentauriNumber::zeroAlpha();
 }
 
@@ -324,14 +327,54 @@ bool compare (string one, string two) {
   return (one==two);
 }
 
+
+void shiftMatrix(int baseTMSB, bool* matrix, bool* singleMatrix) {
+	int fixedY = 0;
+	int i;
+	for(int row = 0; row < baseTMSB; row++) {
+		int toeHold = 0;
+		bool point = false;
+		for (toeHold = fixedY; toeHold < baseTMSB; toeHold++) {
+			point = matrix[row * baseTMSB + toeHold] ? true : false;
+			if (point)
+				break;
+		}
+
+		if (!point)
+			continue;
+		int idx1 = 0;
+		int idx2 = 0;
+		for(i =0; i < baseTMSB; i++) {
+			idx1 = i * baseTMSB + fixedY;
+			idx2 = i * baseTMSB + toeHold;
+			exchange(&matrix[idx1], &matrix[idx2]);
+			exchange(&singleMatrix[idx1], &singleMatrix[idx2]);
+		}
+		
+		
+		for (int j = fixedY + 1; j < baseTMSB; j++) {
+			if (matrix[row * baseTMSB + j]) {
+				for (i =0 ; i < baseTMSB; i++) {
+					idx1 = i * baseTMSB + j;
+					idx2 = i * baseTMSB + fixedY;
+					matrix[idx1] ^=  matrix[idx2];
+					singleMatrix[idx1] ^= singleMatrix[idx2];
+				}
+			}
+		}
+		fixedY++;	
+	}
+}
+
+
 vector<AlphaCentauriNumber> findVec(AlphaCentauriNumber ANUM) {
 	
 	vector<AlphaCentauriNumber> baseVec;
 	int baseTMSB = ANUM.getTMSB() +1;
-	bool **matrix = createZero2DArr(baseTMSB);
-	bool **singleMatrix = createZero2DArr(baseTMSB);
+	bool *matrix = createBoolArray(baseTMSB * baseTMSB);
+	bool *singleMatrix = createBoolArray(baseTMSB * baseTMSB);
 	for (int i =0; i< baseTMSB; i++) {
-			singleMatrix[i][i] = true;
+			singleMatrix[i * baseTMSB + i] = true;
 	}
 	
 	
@@ -340,59 +383,35 @@ vector<AlphaCentauriNumber> findVec(AlphaCentauriNumber ANUM) {
 		bool * oneBitAlpha = createBoolArray(index+1);
 		oneBitAlpha[index] = true;
 		AlphaCentauriNumber roundACN = AlphaCentauriNumber(oneBitAlpha, index+1);
-		AlphaCentauriNumber sqr = roundACN * roundACN;
-		AlphaCentauriNumber sqrRoundACN =  sqr % ANUM;
+		AlphaCentauriNumber sqrRoundACN =  roundACN * roundACN % ANUM;
 		int sqrRACNSize = sqrRoundACN.getSize();
 		bool * directRACN = sqrRoundACN.getDirect();
 		int idx = index-1 < 0 ? baseTMSB-1 : index-1;
 		for(int i = 0; i< sqrRACNSize; i++)
-			matrix[i][idx] = directRACN[i];
-		matrix[idx][idx] ^= 1;
-	}
-	int fixedY = 0;
-	for(int row = 0; row < baseTMSB; row++) {
-		int toeHold = 0;
-		for (toeHold = fixedY; toeHold< baseTMSB; toeHold++) {
-			if (matrix[row][toeHold])
-				break;
-		}
-
-		if (!matrix[row][toeHold])
-			continue;
-		for(int i =0; i < baseTMSB; i++) {
-			exchange(&matrix[i][fixedY], &matrix[i][toeHold]);
-			exchange(&singleMatrix[i][fixedY], &singleMatrix[i][toeHold]);
-		}
-		
-		
-		for (int j = fixedY + 1; j < baseTMSB; j++) {
-			if (matrix[row][j]) {
-				for (int i =0 ; i < baseTMSB; i++) {
-					matrix[i][j] ^=  matrix[i][fixedY];
-					singleMatrix[i][j] ^= singleMatrix[i][fixedY];
-				}
-			}
-		}
-		fixedY++;	
+			matrix[i * baseTMSB + idx] = directRACN[i];
+		matrix[idx * baseTMSB + idx] ^= 1;
 	}
 	
+	shiftMatrix(baseTMSB, matrix, singleMatrix);
 	
 	for (int j = baseTMSB-1; j >= 0; j--){
 		
 		bool flag = false;
 		for(int m = 0; m < baseTMSB; m++)  {
-			flag ^= matrix[m][j];
+			flag ^= matrix[m * baseTMSB + j];
 		}
 		if(!flag) {
 			bool * n = createBoolArray(baseTMSB);
 			for(int m = 0; m < baseTMSB; m++)  {
-				n[m] = singleMatrix[m][j];
+				n[m] = singleMatrix[m * baseTMSB + j];
 			}
 			baseVec.insert(baseVec.end(), AlphaCentauriNumber(n,baseTMSB));
 		}
 		else {
-			delete2dArr(matrix, baseTMSB);
-			delete2dArr(singleMatrix, baseTMSB);
+			delete [] matrix;
+			delete [] singleMatrix;
+			//delete2dArr(matrix, baseTMSB);
+			//delete2dArr(singleMatrix, baseTMSB);
 			break;
 		}
 	}
@@ -445,20 +464,19 @@ void printResults(vector<AlphaCentauriNumber> numsVector, int size, AlphaCentaur
 		}	
 	}
 	
-	if(source.getTMSB() < size) {
-			vector<AlphaCentauriNumber> first;
-			vector<AlphaCentauriNumber> last;
-			first.insert(first.end(),AlphaCentauriNumber() );
-			first.insert(first.end(), source);
-			combinations.insert(combinations.begin(),first);
-			last.insert(last.end(), source);
-			last.insert(last.end(), AlphaCentauriNumber());
-			combinations.insert(combinations.end(),last);
-		}
+	vector<AlphaCentauriNumber> first;
+	vector<AlphaCentauriNumber> last;
+	first.insert(first.end(),AlphaCentauriNumber() );
+	first.insert(first.end(), source);
+	combinations.insert(combinations.begin(),first);
+	last.insert(last.end(), source);
+	last.insert(last.end(), AlphaCentauriNumber());
+	combinations.insert(combinations.end(),last);
+
 	vector<string> resOut;
 	for(vector<AlphaCentauriNumber>::size_type i = 0; i < combinations.size(); i++) {
 		stringstream ss;
-		if( (combinations[i][0] * combinations[i][1]) == base)
+		if( (combinations[i][0].getTMSB()) < size && (combinations[i][1].getTMSB() < size))
 			ss << combinations[i][0].toString(size) << " " <<  combinations[i][1].toString(size) << endl;
 		resOut.insert(resOut.end(),ss.str());
 	}
