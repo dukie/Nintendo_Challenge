@@ -10,14 +10,15 @@ using namespace std;
 #define ZERO_SIZE 1
 #define MULTIPLIER_LENGTH 16
 
+
 class AlphaCentauriNumber {
 	public:
-		/*constructors and instantiators*/
+        /*constructors and instantiators*/
         AlphaCentauriNumber(bool * n, int size);
         AlphaCentauriNumber();
         AlphaCentauriNumber(const AlphaCentauriNumber& other);
 
-	
+
         static AlphaCentauriNumber zeroAlpha();
         ~AlphaCentauriNumber(); 
         /*getters and setters*/
@@ -44,12 +45,14 @@ class AlphaCentauriNumber {
         int tmsb;     
 };
 
+
 bool * createBoolArray(int size) {
 	
 	bool* n = new bool[size];
 	memset(n, false, size);
 	return n;
 }
+
 
 AlphaCentauriNumber::AlphaCentauriNumber() {
 	size = 1;
@@ -58,11 +61,13 @@ AlphaCentauriNumber::AlphaCentauriNumber() {
 	this->findTMSB();
 }
 
+
 AlphaCentauriNumber::AlphaCentauriNumber(bool * n, int size) {
 	this->size = size;
 	this->num = n;
 	this->findTMSB();
 }
+
 
 AlphaCentauriNumber::AlphaCentauriNumber(const AlphaCentauriNumber& other) {
 	size = other.size;
@@ -72,6 +77,7 @@ AlphaCentauriNumber::AlphaCentauriNumber(const AlphaCentauriNumber& other) {
 		num[i] = other.num[i];
 	}
 }
+
 
 AlphaCentauriNumber AlphaCentauriNumber::zeroAlpha() {
 	
@@ -84,6 +90,7 @@ AlphaCentauriNumber AlphaCentauriNumber::zeroAlpha() {
 AlphaCentauriNumber::~AlphaCentauriNumber() { 
 	delete[] num;
 }
+
 
 AlphaCentauriNumber fromInput(int size) {
 	bool * n = createBoolArray(size*2);
@@ -99,6 +106,7 @@ AlphaCentauriNumber fromInput(int size) {
 	}
 	return AlphaCentauriNumber(n, size*2);
 }
+
 
 AlphaCentauriNumber fromString(stringstream* input, int size) {
 	
@@ -118,7 +126,6 @@ AlphaCentauriNumber fromString(stringstream* input, int size) {
 
 
 /*SET GET*/
-
 bool AlphaCentauriNumber::get(std::size_t idx) {
 	if((int)idx > this->getTMSB()) {
 		return false;
@@ -126,9 +133,11 @@ bool AlphaCentauriNumber::get(std::size_t idx) {
 	return num[idx]; 
 }
 
+
 bool * AlphaCentauriNumber::getDirect(){
 	return this->num;
 }
+
 
 string AlphaCentauriNumber::toString(int sizeOfOutput){
 	stringstream ss;
@@ -162,7 +171,6 @@ void AlphaCentauriNumber::findTMSB() {
 
 
 /* MATH*/
-
 AlphaCentauriNumber AlphaCentauriNumber::findDelimeter(AlphaCentauriNumber other) {
 	if(tmsb < other.getTMSB())
 		return other.findDelimeter(*this);
@@ -172,6 +180,7 @@ AlphaCentauriNumber AlphaCentauriNumber::findDelimeter(AlphaCentauriNumber other
 		return other;
 	return other.findDelimeter(module);
 }
+
 
 AlphaCentauriNumber AlphaCentauriNumber::operator=(AlphaCentauriNumber other){
 	bool * tmp;
@@ -183,12 +192,14 @@ AlphaCentauriNumber AlphaCentauriNumber::operator=(AlphaCentauriNumber other){
 	return *this;
 }
 
+
 bool AlphaCentauriNumber::operator[](int idx) {
 	if(idx > tmsb || num[idx] > 1){
 		return false;
 	}
 	return num[idx];
 }
+
 
 AlphaCentauriNumber AlphaCentauriNumber::operator+(AlphaCentauriNumber other) {
 	AlphaCentauriNumber that = *this;
@@ -203,6 +214,7 @@ AlphaCentauriNumber AlphaCentauriNumber::operator+(AlphaCentauriNumber other) {
 		}
 	return AlphaCentauriNumber(n, newSize);
 }
+
 
 AlphaCentauriNumber AlphaCentauriNumber::operator*(AlphaCentauriNumber other) {
 	//int tmsbFirst = tmsb;
@@ -223,6 +235,7 @@ AlphaCentauriNumber AlphaCentauriNumber::operator*(AlphaCentauriNumber other) {
 	return AlphaCentauriNumber(n,newSize);
 	
 }
+
 
 bool AlphaCentauriNumber::operator==(AlphaCentauriNumber other) {
 	int firstTmsb = tmsb;
@@ -257,6 +270,7 @@ AlphaCentauriNumber AlphaCentauriNumber::operator/(AlphaCentauriNumber other) {
     
 }
 
+
 AlphaCentauriNumber AlphaCentauriNumber::operator%(AlphaCentauriNumber other) {
 	
 	bool* n = createBoolArray(tmsb+1);
@@ -284,10 +298,9 @@ AlphaCentauriNumber AlphaCentauriNumber::operator%(AlphaCentauriNumber other) {
 			nTMSB--;
 		}
 	}
-	//delete[] n;
+	delete[] n;
 	return AlphaCentauriNumber::zeroAlpha();
 }
-
 
 
 AlphaCentauriNumber createFromInt(unsigned int num) {
@@ -301,20 +314,6 @@ AlphaCentauriNumber createFromInt(unsigned int num) {
 	return AlphaCentauriNumber(n, 32);
 }
 
-bool** createZero2DArr(int size) {
-	bool **matrix = new bool*[size];
-	for(int i = 0; i < size; i++) {
-		matrix[i] = createBoolArray(size);
-	}
-	return matrix;
-}
-
-void delete2dArr(bool** arr, int size) {
-	for(int i = 0; i < size; i++) {
-		delete [] arr[i];
-	}
-	delete [] arr;
-}
 
 void exchange(bool *a, bool *b) {
 	bool tmp;
@@ -328,7 +327,7 @@ bool compare (string one, string two) {
 }
 
 
-void shiftMatrix(int baseTMSB, bool* matrix, bool* singleMatrix) {
+void shiftMatrix(int baseTMSB, bool* matrix, bool* identityMatrix) {
 	int fixedY = 0;
 	int i;
 	for(int row = 0; row < baseTMSB; row++) {
@@ -348,7 +347,7 @@ void shiftMatrix(int baseTMSB, bool* matrix, bool* singleMatrix) {
 			idx1 = i * baseTMSB + fixedY;
 			idx2 = i * baseTMSB + toeHold;
 			exchange(&matrix[idx1], &matrix[idx2]);
-			exchange(&singleMatrix[idx1], &singleMatrix[idx2]);
+			exchange(&identityMatrix[idx1], &identityMatrix[idx2]);
 		}
 		
 		
@@ -358,7 +357,7 @@ void shiftMatrix(int baseTMSB, bool* matrix, bool* singleMatrix) {
 					idx1 = i * baseTMSB + j;
 					idx2 = i * baseTMSB + fixedY;
 					matrix[idx1] ^=  matrix[idx2];
-					singleMatrix[idx1] ^= singleMatrix[idx2];
+					identityMatrix[idx1] ^= identityMatrix[idx2];
 				}
 			}
 		}
@@ -367,14 +366,14 @@ void shiftMatrix(int baseTMSB, bool* matrix, bool* singleMatrix) {
 }
 
 
-vector<AlphaCentauriNumber> findVec(AlphaCentauriNumber ANUM) {
+vector<AlphaCentauriNumber> partial(AlphaCentauriNumber ANUM) {
 	
 	vector<AlphaCentauriNumber> baseVec;
 	int baseTMSB = ANUM.getTMSB() +1;
 	bool *matrix = createBoolArray(baseTMSB * baseTMSB);
-	bool *singleMatrix = createBoolArray(baseTMSB * baseTMSB);
+	bool *identityMatrix = createBoolArray(baseTMSB * baseTMSB);
 	for (int i =0; i< baseTMSB; i++) {
-			singleMatrix[i * baseTMSB + i] = true;
+			identityMatrix[i * baseTMSB + i] = true;
 	}
 	
 	
@@ -392,7 +391,7 @@ vector<AlphaCentauriNumber> findVec(AlphaCentauriNumber ANUM) {
 		matrix[idx * baseTMSB + idx] ^= 1;
 	}
 	
-	shiftMatrix(baseTMSB, matrix, singleMatrix);
+	shiftMatrix(baseTMSB, matrix, identityMatrix);
 	
 	for (int j = baseTMSB-1; j >= 0; j--){
 		
@@ -403,15 +402,13 @@ vector<AlphaCentauriNumber> findVec(AlphaCentauriNumber ANUM) {
 		if(!flag) {
 			bool * n = createBoolArray(baseTMSB);
 			for(int m = 0; m < baseTMSB; m++)  {
-				n[m] = singleMatrix[m * baseTMSB + j];
+				n[m] = identityMatrix[m * baseTMSB + j];
 			}
 			baseVec.insert(baseVec.end(), AlphaCentauriNumber(n,baseTMSB));
 		}
 		else {
 			delete [] matrix;
-			delete [] singleMatrix;
-			//delete2dArr(matrix, baseTMSB);
-			//delete2dArr(singleMatrix, baseTMSB);
+			delete [] identityMatrix;
 			break;
 		}
 	}
@@ -421,7 +418,7 @@ vector<AlphaCentauriNumber> findVec(AlphaCentauriNumber ANUM) {
 
 vector<AlphaCentauriNumber> findMultipliers(AlphaCentauriNumber ANUM) {
 
-	vector<AlphaCentauriNumber> possibles = findVec(ANUM);
+	vector<AlphaCentauriNumber> possibles = partial(ANUM);
 	for(vector<AlphaCentauriNumber>::iterator it = possibles.begin(); it != possibles.end(); ++it) {
 		
 		if ((*it).getTMSB() >= 1){
@@ -445,15 +442,15 @@ vector<AlphaCentauriNumber> findMultipliers(AlphaCentauriNumber ANUM) {
 
 
 void printResults(vector<AlphaCentauriNumber> numsVector, int size, AlphaCentauriNumber base){
-	
+
 	vector<vector<AlphaCentauriNumber> > combinations;
 
 	AlphaCentauriNumber source;
 
 	for(vector<AlphaCentauriNumber>::size_type i = 0; i < numsVector.size(); i++) {
-		source = numsVector[i] * source;
-		
-		for(vector<AlphaCentauriNumber>::size_type k = 0; k < numsVector.size(); k++) {
+        source = numsVector[i] * source;
+
+        for(vector<AlphaCentauriNumber>::size_type k = 0; k < numsVector.size(); k++) {
 			if (i == k)
 				continue;
 			
@@ -469,16 +466,16 @@ void printResults(vector<AlphaCentauriNumber> numsVector, int size, AlphaCentaur
 	first.insert(first.end(),AlphaCentauriNumber() );
 	first.insert(first.end(), source);
 	combinations.insert(combinations.begin(),first);
-	last.insert(last.end(), source);
-	last.insert(last.end(), AlphaCentauriNumber());
-	combinations.insert(combinations.end(),last);
+    last.insert(last.end(), source);
+    last.insert(last.end(), AlphaCentauriNumber());
+    combinations.insert(combinations.end(),last);
 
-	vector<string> resOut;
-	for(vector<AlphaCentauriNumber>::size_type i = 0; i < combinations.size(); i++) {
-		stringstream ss;
-		if( (combinations[i][0].getTMSB()) < size && (combinations[i][1].getTMSB() < size))
-			ss << combinations[i][0].toString(size) << " " <<  combinations[i][1].toString(size) << endl;
-		resOut.insert(resOut.end(),ss.str());
+    vector<string> resOut;
+    for(vector<AlphaCentauriNumber>::size_type i = 0; i < combinations.size(); i++) {
+        stringstream ss;
+        if( (combinations[i][0].getTMSB()) < size && (combinations[i][1].getTMSB() < size))
+            ss << combinations[i][0].toString(size) << " " <<  combinations[i][1].toString(size) << endl;
+        resOut.insert(resOut.end(),ss.str());
 	}
 	unique(resOut.begin(), resOut.end(), compare);
 	sort(resOut.begin(), resOut.end());
